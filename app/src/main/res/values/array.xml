@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="Cities">
+        <item>524901</item>     <!-- Moscow,RU -->
+        <item>519690</item>     <!-- Petersburg,RU -->
+        <item>498698</item>     <!-- Saransk,RU -->
+        <item>551487</item>     <!-- Kazan,RU -->
+        <item>491422</item>     <!-- Sochi,RU -->
+        <item>2988507</item>    <!-- Paris -->
+        <item>3173435</item>    <!-- Milano,IT -->
+        <item>2643743</item>    <!-- London -->
+        <item>2950159</item>    <!-- Berlin -->
+        <item>5815135</item>    <!-- Washington -->
+        <item>3117735</item>    <!-- Madrid,ES -->
+    </string-array>
+</resources>
