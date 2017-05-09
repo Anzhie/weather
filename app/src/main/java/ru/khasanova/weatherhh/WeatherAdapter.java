@@ -1,11 +1,13 @@
 package ru.khasanova.weatherhh;
 
+import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import java.util.List;
 
@@ -28,7 +30,7 @@ public class WeatherAdapter extends RecyclerView.Adapter<WeatherHolder> {
         @Override
         public void onClick(View v) {
             //получаем город из строки, на которую нажал пользователь
-            City city = (City) v.getTag();
+            City city = (City) v.findViewById(R.id.cityName).getTag(); //.findViewWithTag().getTag();
             //передаем в обработчик, чтобы получить погоду для этого города
             mClickListener.onItemClick(city);
         }
@@ -53,22 +55,24 @@ public class WeatherAdapter extends RecyclerView.Adapter<WeatherHolder> {
     public void onBindViewHolder(WeatherHolder holder, int position){
         //заполняем каждый элемент RecyclerView
         City city = mCities.get(position);
+
         //город
+        holder.cityName.setTag(city);
         holder.cityName.setText(city.getName());
 
         //картинка
         String imgName = city.getDescription();
         if (imgName.contains(CLEAR_STR)){
-            //holder.weatherImage.setIm(Drawable.createFromStream(, CLEAR_STR+".png"));
+            holder.weatherImage.setImageResource(R.drawable.clear);
         }
         else if (imgName.contains(RAIN_STR)){
-
+            holder.weatherImage.setImageResource(R.drawable.rain);
         }
         else if (imgName.contains(SNOW_STR)){
-
+            holder.weatherImage.setImageResource(R.drawable.snow);
         }
         else {
-
+            holder.weatherImage.setImageResource(R.drawable.def);
         }
 
         //обработчик события нажатия

@@ -1,8 +1,12 @@
 package ru.khasanova.weatherhh;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -21,8 +25,11 @@ import ru.khasanova.weatherhh.network.NetService;
 
 public class MainActivity extends AppCompatActivity implements WeatherAdapter.onItemClick{
     private Realm realm;
+    RealmResults<City> citiesDB;
 
     private WeatherAdapter adapter;
+
+    BroadcastReceiver receiver;
 
     private static final String CITY_KEY = "city_key";
 
@@ -37,20 +44,39 @@ public class MainActivity extends AppCompatActivity implements WeatherAdapter.on
         setSupportActionBar(toolbar);
 
         //вспомогательные переменные
-        List<City> cities   = new ArrayList<>();
+        final List<City> cities   = new ArrayList<>();
         boolean load        = false;
-        long currentTime    = System.currentTimeMillis() / 1000;
-        long thirtyMinBef   = currentTime - (30*60);
+        long currentTime    = System.currentTimeMillis();
+        long thirtyMinDef   = currentTime - (30*60*1000);
+
+        //используем ButterKnife для инициализации элементов интерфейса
+        ButterKnife.bind(this);
+
+        //заполняем recyclerView: расположение элементов, адаптер, декоратор
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        //привязываемся к параметру, содержащему список городов и обработчику событий нажатия
+        adapter = new WeatherAdapter(cities, this);
+        recyclerView.setAdapter(adapter);
+        recyclerView.addItemDecoration(new ItemDivider(this));
+
+
+        receiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                citiesDB = getCitiesFromRealm();
+                showWeather(cities, citiesDB);
+            }
+        };
 
         //БД
         realm = Realm.getInstance(this);
         //все записи БД
-        RealmResults<City> citiesDB = realm.where(City.class).findAll();
+        citiesDB = getCitiesFromRealm();
         if (!citiesDB.isEmpty()){
             for (int i = 0; i < citiesDB.size(); i++){
                 long cityEntryTime = citiesDB.get(i).getTime();
                 //если хотя бы у обной записи в БД время получения более 30 минут, загружаем погоду заново
-                if (cityEntryTime<thirtyMinBef){
+                if (cityEntryTime<thirtyMinDef){
                     load = true;
                     break;
                 }
@@ -62,12 +88,15 @@ public class MainActivity extends AppCompatActivity implements WeatherAdapter.on
         }
 
         if (load) {
-            //получаем города, для которых надо загрузить погоду
-            String[] arrayCities = getResources().getStringArray(R.array.Cities);
-            String groupCities = "";
-            for (String city : arrayCities) {
-                groupCities = groupCities + city + ",";
+            //удаляем существующие записи БД
+            realm.beginTransaction();
+            for (int i = citiesDB.size(); i > 0; i--){
+                citiesDB.get(i-1).removeFromRealm();
             }
+            realm.commitTransaction();
+
+            //получаем города, для которых надо загрузить погоду
+            String groupCities = getCitiesList();
 
             //загружаем погоду (из строки городов надо убрать последнюю ",")
             loadWeather(groupCities.substring(0, groupCities.length() - 1));
@@ -76,16 +105,6 @@ public class MainActivity extends AppCompatActivity implements WeatherAdapter.on
             //если загрузка не требуется, сразу отображаем погоду
             showWeather(cities, citiesDB);
         }
-
-        //используем ButterKnife для инициализации элементов интерфейса
-        ButterKnife.bind(this);
-
-        //заполняем recyclerView: расположение элементов, адаптер, декоратор
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        //привязываемся к параметру, содержащему список городов и обработчику событий нажатия
-        adapter = new WeatherAdapter(cities, this);
-        recyclerView.setAdapter(adapter);
-        recyclerView.addItemDecoration(new ItemDivider(this));
     }
 
 
@@ -108,6 +127,16 @@ public class MainActivity extends AppCompatActivity implements WeatherAdapter.on
     }
 
 
+    private String getCitiesList(){
+        String[] arrayCities = getResources().getStringArray(R.array.Cities);
+        String groupOfCities = "";
+        for (String city : arrayCities) {
+            groupOfCities = groupOfCities + city + ",";
+        }
+        return groupOfCities;
+    }
+
+
     private void loadWeather(String groupCities){
         //для загрузки погода стартуем service
         NetService.start(this, groupCities);
@@ -116,11 +145,29 @@ public class MainActivity extends AppCompatActivity implements WeatherAdapter.on
     private void showWeather(List<City> cities, RealmResults<City> citiesDB){
         //помещаем данные из БД в список городов
         for (int i = 0; i < citiesDB.size(); i++){
-            //!!! ИЗМЕНИТЬ - надо вывести картинку погоды для каждого гороа
             cities.add(citiesDB.get(i));
         }
         //сообщаем адаптеру, что данные изменились
         adapter.notifyDataSetChanged();
+    }
+
+
+    @Override
+    protected void onStart(){
+        super.onStart();
+        LocalBroadcastManager.getInstance(this).registerReceiver((receiver), new IntentFilter(NetService.RESULT));
+    }
+
+
+    @Override
+    protected void onStop(){
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(receiver);
+        super.onStop();
+    }
+
+
+    private RealmResults<City> getCitiesFromRealm(){
+        return realm.where(City.class).findAll();
     }
 
 }

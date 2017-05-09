@@ -37,6 +37,21 @@ public class List {
     @Expose
     private String name;
 
+    public List(){}
+    public List(Coord coord, Sys sys, java.util.List<Weather> weather, Main main, Integer visibility,
+                Wind wind, Clouds clouds, Integer dt, Integer id, String name){
+        this.coord      = coord;
+        this.sys        = sys;
+        this.weather    = weather;
+        this.main       = main;
+        this.visibility = visibility;
+        this.wind       = wind;
+        this.clouds     = clouds;
+        this.dt         = dt;
+        this.id         = id;
+        this.name       = name;
+    }
+
     public Coord getCoord() {
         return coord;
     }

@@ -1,19 +1,28 @@
 package ru.khasanova.weatherhh;
 
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import java.text.NumberFormat;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.realm.Realm;
-import io.realm.RealmObject;
 import ru.khasanova.weatherhh.data.base.City;
 
 public class CityActivity extends AppCompatActivity {
     Realm realm;
     private static final String CITY_KEY = "city_key";
+
+    private static final String CLEAR_STR   = "clear";
+    private static final String RAIN_STR    = "rain";
+    private static final String SNOW_STR    = "snow";
 
     String cityName;
 
@@ -26,10 +35,15 @@ public class CityActivity extends AppCompatActivity {
     @BindView(R.id.currentTemperature)
     TextView currentTemperature;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_city);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         //для инициализации элементов интерфейса
         ButterKnife.bind(this);
@@ -38,11 +52,32 @@ public class CityActivity extends AppCompatActivity {
         cityName = getIntent().getStringExtra(CITY_KEY);
 
         //достаем данные из БД по конкретному городу
-        RealmObject currentCity = realm.where(City.class).equalTo("name", cityName).findFirst();
-        //CityTable city               = currentCity.getClass();
+        realm = Realm.getInstance(this);
+        City city = realm.where(City.class).equalTo("name", cityName).findFirst();
 
-        //currentCityName.setText(.getName());
-        //currentWeatherImg;
-        //currentTemperature.setText(.getTemperature());
+        //заполняем интерфейс
+        currentCityName.setText(city.getName());
+
+        Double tempD = Double.parseDouble(city.getTemp());
+        NumberFormat numberFormat = NumberFormat.getNumberInstance();
+        String temp = numberFormat.format(tempD.intValue());
+
+        currentTemperature.setText(temp + "\u00B0C");
+
+        //картинка
+        String imgName = city.getDescription();
+        if (imgName.contains(CLEAR_STR)){
+            currentWeatherImg.setImageResource(R.drawable.clear);
+        }
+        else if (imgName.contains(RAIN_STR)){
+            currentWeatherImg.setImageResource(R.drawable.rain);
+        }
+        else if (imgName.contains(SNOW_STR)){
+            currentWeatherImg.setImageResource(R.drawable.snow);
+        }
+        else {
+            currentWeatherImg.setImageResource(R.drawable.def);
+        }
     }
+
 }

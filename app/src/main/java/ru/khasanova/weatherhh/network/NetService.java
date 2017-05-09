@@ -4,6 +4,7 @@ import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.google.gson.ExclusionStrategy;
@@ -13,17 +14,22 @@ import com.google.gson.GsonBuilder;
 
 import org.json.JSONArray;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import io.realm.Realm;
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import ru.khasanova.weatherhh.data.Cities;
+import ru.khasanova.weatherhh.data.CitiesDeserializer;
+import ru.khasanova.weatherhh.data.CitiesWeather;
+import ru.khasanova.weatherhh.data.CityDeserializer;
 import ru.khasanova.weatherhh.data.base.City;
 
 /**
@@ -34,12 +40,21 @@ public class NetService extends IntentService{
 
     private static final String TAG         = "WeatherHH";
     private static final String CITY_KEY    = "city_key";
+    public static final String RESULT       = "ru.khasanova.weatherhh.backend.NetService.REQUEST_PROCESSED";
 
-    public List<Cities> cities;
+    public List<City> cities;
     Realm realm;
+
+    LocalBroadcastManager broadcastManager;
 
     public NetService(){
         super(NetService.class.getName());
+    }
+
+    @Override
+    public void onCreate(){
+        super.onCreate();
+        broadcastManager = LocalBroadcastManager.getInstance(this);
     }
 
     public static void start(@NonNull Context context, @NonNull String groupCities){
@@ -56,46 +71,44 @@ public class NetService extends IntentService{
         String groupCities = intent.getStringExtra(CITY_KEY);
 
         //создаем GSON
-        Gson gson = new GsonBuilder().setExclusionStrategies(new ExclusionStrategy() {
-            @Override
-            public boolean shouldSkipField(FieldAttributes f) {
-                return f.getDeclaredClass().equals(City.class);
-            }
-
-            @Override
-            public boolean shouldSkipClass(Class<?> clazz) {
-                return false;
-            }
-        }).create();
+        final Gson gson = new GsonBuilder()
+                .registerTypeAdapter(CitiesWeather.class, new CitiesDeserializer())
+                .registerTypeAdapter(City.class, new CityDeserializer())
+                .create();
 
         //создаем ретрофит:базовый адрес + GSON
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("http://api.openweathermap.org/")
-                .addConverterFactory(GsonConverterFactory.create(gson))
+                //.addConverterFactory(GsonConverterFactory.create(gson))
                 .build();
 
         //для ретрофита есть интерфейс ServiceInterface, где определяется тип запроса и параметры
         ServiceInterface service = retrofit.create(ServiceInterface.class);
 
         //делаем запрос погоды асинхронно
-        Call<Cities> call = service.getWeatherFromOWM(createParams(groupCities));
-        call.enqueue(new Callback<Cities>() {
+        Call<ResponseBody> call = service.getWeatherFromOWM(createParams(groupCities));
+        call.enqueue(new Callback<ResponseBody>() {
             @Override
-            public void onResponse(Call<Cities> call, Response<Cities> response) {
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                 //если вернулся 200й код - получен ответ по запросу
                 if (response.isSuccessful()) {
                     //записываем данные погоды по городам в БД
-                    final Cities s = response.body();
-                    final JSONArray list = new JSONArray(s.getList());
+                    try {
+                        final String body = response.body().string();
+                        final CitiesWeather citiesWeather = gson.fromJson(body, CitiesWeather.class);
 
-                    realm = Realm.getInstance(NetService.this);
-                    realm.executeTransaction(new Realm.Transaction() {
-                        @Override
-                        public void execute(Realm realm) {
-                            realm.createAllFromJson(City.class, list.toString());
-                            Log.e(TAG, "success");
-                        }
-                    });
+                        realm = Realm.getInstance(NetService.this);
+                        realm.beginTransaction();
+                        realm.copyToRealm(citiesWeather.getCities());
+                        realm.commitTransaction();
+                        Log.e(TAG, "success");
+
+                        Intent intentBack = new Intent(RESULT);
+                        broadcastManager.sendBroadcast(intentBack);
+
+                    }catch (IOException e){
+                        e.printStackTrace();
+                    }
 
                 }
                 else {
@@ -104,7 +117,7 @@ public class NetService extends IntentService{
             }
 
             @Override
-            public void onFailure(Call<Cities> call, Throwable t) {
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
                 Log.e(TAG, "loadWeather failure");
             }
         });
