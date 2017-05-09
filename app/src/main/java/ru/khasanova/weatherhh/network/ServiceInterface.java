@@ -8,7 +8,6 @@ import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.QueryMap;
-import ru.khasanova.weatherhh.data.Cities;
 
 /**
  * Created by Анжелика on 22.04.2017.

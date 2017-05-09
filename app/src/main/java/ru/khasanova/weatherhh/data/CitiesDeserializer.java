@@ -19,11 +19,15 @@ import ru.khasanova.weatherhh.data.base.City;
 public class CitiesDeserializer implements JsonDeserializer<CitiesWeather> {
     @Override
     public CitiesWeather deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+        //получаем объект CitiesWeather - список городов
         CitiesWeather citiesWeather = new CitiesWeather();
+
+        //получаем из json объект и выделяем массив городов
         JsonObject jsonObject       = json.getAsJsonObject();
         JsonArray jsonArray         = jsonObject.get("list").getAsJsonArray();
 
         for (JsonElement entry : jsonArray){
+            //каждый элемента массива преобразуем в класс и добавляем в список городов
             City city = context.deserialize(entry, City.class);
             citiesWeather.addCity(city);
         }

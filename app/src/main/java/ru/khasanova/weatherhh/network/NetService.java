@@ -7,12 +7,8 @@ import android.support.annotation.NonNull;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
-import com.google.gson.ExclusionStrategy;
-import com.google.gson.FieldAttributes;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-
-import org.json.JSONArray;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -25,8 +21,6 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
-import ru.khasanova.weatherhh.data.Cities;
 import ru.khasanova.weatherhh.data.CitiesDeserializer;
 import ru.khasanova.weatherhh.data.CitiesWeather;
 import ru.khasanova.weatherhh.data.CityDeserializer;
@@ -103,6 +97,7 @@ public class NetService extends IntentService{
                         realm.commitTransaction();
                         Log.e(TAG, "success");
 
+                        //возвращаемся в UI
                         Intent intentBack = new Intent(RESULT);
                         broadcastManager.sendBroadcast(intentBack);
 

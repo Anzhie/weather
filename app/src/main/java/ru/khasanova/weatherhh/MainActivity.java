@@ -59,7 +59,7 @@ public class MainActivity extends AppCompatActivity implements WeatherAdapter.on
         recyclerView.setAdapter(adapter);
         recyclerView.addItemDecoration(new ItemDivider(this));
 
-
+        //для получения управления из службы по окончании загрузки и записи в БД
         receiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -122,12 +122,13 @@ public class MainActivity extends AppCompatActivity implements WeatherAdapter.on
         Intent intent = new Intent(this, CityActivity.class);
         //в параметрах передаем город, для которого нужно отобразить погоду
         intent.putExtra(CITY_KEY, city.getName());
-
+        //запускаем активити с детальным описанием выбранного города
         startActivity(intent);
     }
 
 
     private String getCitiesList(){
+        //получим список городов, для которых надо грузить погоду
         String[] arrayCities = getResources().getStringArray(R.array.Cities);
         String groupOfCities = "";
         for (String city : arrayCities) {
@@ -155,18 +156,21 @@ public class MainActivity extends AppCompatActivity implements WeatherAdapter.on
     @Override
     protected void onStart(){
         super.onStart();
+        //регистрируем приемник для передачи управления из службы в UI
         LocalBroadcastManager.getInstance(this).registerReceiver((receiver), new IntentFilter(NetService.RESULT));
     }
 
 
     @Override
     protected void onStop(){
+        //отключаем приемник
         LocalBroadcastManager.getInstance(this).unregisterReceiver(receiver);
         super.onStop();
     }
 
 
     private RealmResults<City> getCitiesFromRealm(){
+        //получаем все города из БД
         return realm.where(City.class).findAll();
     }
 

@@ -12,6 +12,7 @@ import ru.khasanova.weatherhh.data.base.City;
  * Created by Анжелика on 03.05.2017.
  */
 
+//класс для описания списка городов - объекта, получаемого с openweathermap
 public class CitiesWeather {
 
     @SerializedName("list")
