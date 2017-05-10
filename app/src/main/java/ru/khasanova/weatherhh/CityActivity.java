@@ -16,6 +16,8 @@ import butterknife.ButterKnife;
 import io.realm.Realm;
 import ru.khasanova.weatherhh.data.base.City;
 
+import static java.lang.Math.round;
+
 public class CityActivity extends AppCompatActivity {
     Realm realm;
     private static final String CITY_KEY = "city_key";
@@ -60,7 +62,7 @@ public class CityActivity extends AppCompatActivity {
 
         Double tempD = Double.parseDouble(city.getTemp());
         NumberFormat numberFormat = NumberFormat.getNumberInstance();
-        String temp = numberFormat.format(tempD.intValue());
+        String temp = numberFormat.format(round(tempD));   //.intValue(
 
         currentTemperature.setText(temp + "\u00B0C");
 
