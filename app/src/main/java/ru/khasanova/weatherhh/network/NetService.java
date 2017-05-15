@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -21,6 +22,8 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
+import ru.khasanova.weatherhh.MainActivity;
+import ru.khasanova.weatherhh.R;
 import ru.khasanova.weatherhh.data.CitiesDeserializer;
 import ru.khasanova.weatherhh.data.CitiesWeather;
 import ru.khasanova.weatherhh.data.CityDeserializer;
@@ -36,9 +39,12 @@ public class NetService extends IntentService{
     private static final String CITY_KEY    = "city_key";
     public static final String RESULT       = "ru.khasanova.weatherhh.backend.NetService.REQUEST_PROCESSED";
 
+    MainActivity staticParam = new MainActivity();
+
     public List<City> cities;
     Realm realm;
 
+    public static Intent intent;
     LocalBroadcastManager broadcastManager;
 
     public NetService(){
@@ -53,14 +59,14 @@ public class NetService extends IntentService{
 
     public static void start(@NonNull Context context, @NonNull String groupCities){
         //стартуем service, в качестве параметра передаем список городов, для которых надо загрузить погоду
-        Intent intent = new Intent(context, NetService.class);
+        intent = new Intent(context, NetService.class);
         intent.putExtra(CITY_KEY, groupCities);
         context.startService(intent);
     }
 
 
     @Override
-    protected void onHandleIntent(Intent intent){
+    protected void onHandleIntent(final Intent intent){
         //извлекаем список городов, для которых надо загрузить погоду
         String groupCities = intent.getStringExtra(CITY_KEY);
 
@@ -84,6 +90,7 @@ public class NetService extends IntentService{
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                Intent intentBack = new Intent(RESULT);
                 //если вернулся 200й код - получен ответ по запросу
                 if (response.isSuccessful()) {
                     //записываем данные погоды по городам в БД
@@ -97,25 +104,41 @@ public class NetService extends IntentService{
                         realm.commitTransaction();
                         Log.e(TAG, "success");
 
-                        //возвращаемся в UI
-                        Intent intentBack = new Intent(RESULT);
-                        broadcastManager.sendBroadcast(intentBack);
+                        //упаковываем в интент сообщение об успешной записи данных в базу
+                        intentBack.putExtra(staticParam.RES_EXC, staticParam.OK);
+
 
                     }catch (IOException e){
+                        //упаковываем в интент сообщение об ошибке при записи в realm и возвращаем в UI
+                        intentBack.putExtra(staticParam.RES_EXC, staticParam.R_ERR);
                         e.printStackTrace();
                     }
 
                 }
                 else {
+                    //упаковываем в интент сообщение от сервера и возвращаем в UI
+                    intentBack.putExtra(staticParam.RES_EXC, staticParam.NET_ERR);
+                    intentBack.putExtra(staticParam.ERR_DESC, response.code());
                     Log.e(TAG, "problem: loadWeather response");
                 }
+
+                //возвращаемся в UI
+                broadcastManager.sendBroadcast(intentBack);
             }
 
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
                 Log.e(TAG, "loadWeather failure");
+
+                //упаковываем в интент сообщение об ошибке и возвращаем в UI
+                Intent intentBack = new Intent(RESULT);
+                intentBack.putExtra(staticParam.RES_EXC, staticParam.FAILURE);
+                broadcastManager.sendBroadcast(intentBack);
             }
         });
+
+        //остановим службу
+        stopSelf();
     }
 
 
@@ -130,6 +153,13 @@ public class NetService extends IntentService{
         hashMap.put("appid", "8ff8c29207a244b7cd7a0d63357defb0");
 
         return hashMap;
+    }
+
+
+    @Override
+    public void onDestroy(){
+        Log.e(TAG, "service done");
+        super.onDestroy();
     }
 
 }

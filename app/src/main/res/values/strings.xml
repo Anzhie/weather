@@ -3,4 +3,7 @@
     <string name="action_settings">Settings</string>
     <string name="weatherPic">The picture of current weather</string>
     <string name="title_activity_city">Weather of city</string>
+    <string name="realm_err">Cannot write to realm</string>
+    <string name="net_err">Error: %s</string>
+    <string name="load_failure">Load is failure. Check connection.</string>
 </resources>

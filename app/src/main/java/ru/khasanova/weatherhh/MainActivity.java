@@ -11,6 +11,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,6 +33,12 @@ public class MainActivity extends AppCompatActivity implements WeatherAdapter.on
     BroadcastReceiver receiver;
 
     private static final String CITY_KEY = "city_key";
+    public static final String RES_EXC   = "Result";
+    public static final String OK        = "OK";
+    public static final String NET_ERR   = "Net_error";
+    public static final String R_ERR     = "Realm_error";
+    public static final String ERR_DESC  = "Error_description";
+    public static final String FAILURE   = "FAILURE";
 
     @BindView(R.id.recyclerView)
     RecyclerView recyclerView;
@@ -63,8 +70,26 @@ public class MainActivity extends AppCompatActivity implements WeatherAdapter.on
         receiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                citiesDB = getCitiesFromRealm();
-                showWeather(cities, citiesDB);
+                //получаем строку результата запроса погоды
+                String result = intent.getStringExtra(RES_EXC);
+
+                //в зависимости от результата: выводим данные или
+                //показываем пользователю сообщение об ошибке
+                switch (result){
+                    case OK:
+                        citiesDB = getCitiesFromRealm();
+                        showWeather(cities, citiesDB);
+                        break;
+                    case R_ERR:
+                        Toast.makeText(MainActivity.this, getString(R.string.realm_err), Toast.LENGTH_LONG).show();
+                        break;
+                    case NET_ERR:
+                        String net = intent.getStringExtra(ERR_DESC);
+                        Toast.makeText(MainActivity.this, getString(R.string.net_err, net), Toast.LENGTH_LONG).show();
+                        break;
+                    case FAILURE:
+                        Toast.makeText(MainActivity.this, getString(R.string.load_failure), Toast.LENGTH_LONG).show();
+                }
             }
         };
 
