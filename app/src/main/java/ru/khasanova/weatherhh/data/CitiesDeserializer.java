@@ -8,12 +8,11 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 
 import java.lang.reflect.Type;
-import java.util.Map;
 
 import ru.khasanova.weatherhh.data.base.City;
 
 /**
- * Created by Анжелика on 03.05.2017.
+ * Created by Анжелика.
  */
 
 public class CitiesDeserializer implements JsonDeserializer<CitiesWeather> {

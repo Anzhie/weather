@@ -1,21 +1,15 @@
 package ru.khasanova.weatherhh;
 
-import android.content.res.Resources;
-import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import java.util.List;
 
 import ru.khasanova.weatherhh.data.base.City;
 
-/**
- * Created by Анжелика on 21.04.2017.
- */
 
 public class WeatherAdapter extends RecyclerView.Adapter<WeatherHolder> {
 

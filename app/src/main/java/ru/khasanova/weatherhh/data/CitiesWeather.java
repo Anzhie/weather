@@ -9,7 +9,7 @@ import java.util.List;
 import ru.khasanova.weatherhh.data.base.City;
 
 /**
- * Created by Анжелика on 03.05.2017.
+ * Created by Анжелика.
  */
 
 //класс для описания списка городов - объекта, получаемого с openweathermap

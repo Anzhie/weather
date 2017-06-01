@@ -6,4 +6,6 @@
     <string name="realm_err">Cannot write to realm</string>
     <string name="net_err">Error: %s</string>
     <string name="load_failure">Load is failure. Check connection.</string>
+    <string name="empty_weather">The weather didn\'t load</string>
+    <string name="loading">Loading...</string>
 </resources>

@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -23,14 +22,13 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import ru.khasanova.weatherhh.MainActivity;
-import ru.khasanova.weatherhh.R;
 import ru.khasanova.weatherhh.data.CitiesDeserializer;
 import ru.khasanova.weatherhh.data.CitiesWeather;
 import ru.khasanova.weatherhh.data.CityDeserializer;
 import ru.khasanova.weatherhh.data.base.City;
 
 /**
- * Created by Анжелика on 22.04.2017.
+ * Created by Анжелика.
  */
 
 public class NetService extends IntentService{

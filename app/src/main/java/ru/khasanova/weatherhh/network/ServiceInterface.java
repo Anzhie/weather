@@ -10,7 +10,7 @@ import retrofit2.http.GET;
 import retrofit2.http.QueryMap;
 
 /**
- * Created by Анжелика on 22.04.2017.
+ * Created by Анжелика.
  */
 
 public interface ServiceInterface {

@@ -1,11 +1,10 @@
 package ru.khasanova.weatherhh.data.base;
 
 import io.realm.RealmObject;
-import io.realm.annotations.RealmClass;
 import io.realm.annotations.Required;
 
 /**
- * Created by Анжелика on 24.04.2017.
+ * Created by Анжелика.
  */
 
 //класс для БД

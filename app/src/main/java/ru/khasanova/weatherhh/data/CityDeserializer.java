@@ -12,7 +12,7 @@ import java.lang.reflect.Type;
 import ru.khasanova.weatherhh.data.base.City;
 
 /**
- * Created by Анжелика on 03.05.2017.
+ * Created by Анжелика.
  */
 
 public class CityDeserializer implements JsonDeserializer<City> {

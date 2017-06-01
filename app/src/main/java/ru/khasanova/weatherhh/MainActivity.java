@@ -21,6 +21,8 @@ import butterknife.ButterKnife;
 import io.realm.Realm;
 import io.realm.RealmResults;
 import ru.khasanova.weatherhh.data.base.City;
+import ru.khasanova.weatherhh.load.LoadingDialog;
+import ru.khasanova.weatherhh.load.LoadingView;
 import ru.khasanova.weatherhh.network.NetService;
 
 
@@ -31,6 +33,8 @@ public class MainActivity extends AppCompatActivity implements WeatherAdapter.on
     private WeatherAdapter adapter;
 
     BroadcastReceiver receiver;
+
+    private LoadingView loadingView;
 
     private static final String CITY_KEY = "city_key";
     public static final String RES_EXC   = "Result";
@@ -73,6 +77,9 @@ public class MainActivity extends AppCompatActivity implements WeatherAdapter.on
                 //получаем строку результата запроса погоды
                 String result = intent.getStringExtra(RES_EXC);
 
+                //убираем диалог загрузки
+                loadingView.hideLoadingDialog();
+
                 //в зависимости от результата: выводим данные или
                 //показываем пользователю сообщение об ошибке
                 switch (result){
@@ -92,6 +99,9 @@ public class MainActivity extends AppCompatActivity implements WeatherAdapter.on
                 }
             }
         };
+
+        //диалог загрузки
+        loadingView = LoadingDialog.view(getSupportFragmentManager());
 
         //БД
         realm = Realm.getInstance(this);
@@ -113,6 +123,9 @@ public class MainActivity extends AppCompatActivity implements WeatherAdapter.on
         }
 
         if (load) {
+            //отображаем диалог загрузки
+            loadingView.showLoadingDialog();
+
             //удаляем существующие записи БД
             realm.beginTransaction();
             for (int i = citiesDB.size(); i > 0; i--){
