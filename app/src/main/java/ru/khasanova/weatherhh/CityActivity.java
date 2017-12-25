@@ -3,8 +3,11 @@ package ru.khasanova.weatherhh;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.google.firebase.iid.FirebaseInstanceId;
 
 import java.text.NumberFormat;
 
@@ -22,6 +25,8 @@ public class CityActivity extends AppCompatActivity {
     private static final String CLEAR_STR   = "clear";
     private static final String RAIN_STR    = "rain";
     private static final String SNOW_STR    = "snow";
+
+    private static final String TAG = "WEATHER_TOKEN";
 
     String cityName;
 
@@ -43,6 +48,9 @@ public class CityActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        String refreshedToken = FirebaseInstanceId.getInstance().getToken();
+        Log.d(TAG, "Refreshed token: " + refreshedToken);
 
         //для инициализации элементов интерфейса
         ButterKnife.bind(this);

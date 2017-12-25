@@ -1,0 +1,62 @@
+{
+  "project_info": {
+    "project_number": "766392092926",
+    "firebase_url": "https://my-project-gcm-test-21126.firebaseio.com",
+    "project_id": "my-project-gcm-test-21126",
+    "storage_bucket": "my-project-gcm-test-21126.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:766392092926:android:dbd8e10b35781cbb",
+        "android_client_info": {
+          "package_name": "ru.khasanova.weatherhh"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "766392092926-pq2tl80jhjre90i88r555o35hsaa5cs4.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "ru.khasanova.weatherhh",
+            "certificate_hash": "f2fae2579eeef1d4d537e616f0d54da1c6911175"
+          }
+        },
+        {
+          "client_id": "766392092926-rok095ed2vm9hbavlrabrimar1sg3jnn.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDRm2xUOZNgDjmnrmlBpIeHsWqGT2myhys"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "766392092926-nrkd4j74nen6fi48q367k1v4i0q40ue3.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "ru.khasanova.weatherTesthh"
+              }
+            },
+            {
+              "client_id": "766392092926-rok095ed2vm9hbavlrabrimar1sg3jnn.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
